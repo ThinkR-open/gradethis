@@ -23,9 +23,9 @@ evaluate_condition <- function(condition, grader_args, learnr_args) {
   err_msg <- NULL
   res <- tryCatch({
     switch(condition$type,
-           "formula" = evaluate_condi_formula(condition$x, learnr_args$last_value, env = learnr_env(learnr_args)), # nolint
-           "function" = evaluate_condi_function(condition$x, learnr_args$last_value),
-           "value" = evaluate_condi_value(condition$x, learnr_args$last_value)
+           "formula" = evaluate_condi_formula(formula = condition$x, user_answer = learnr_args$last_value, env = learnr_env(learnr_args)), # nolint
+           "function" = evaluate_condi_function(fxn = condition$x, user_answer =  learnr_args$last_value),
+           "value" = evaluate_condi_value(val = condition$x, user_answer =  learnr_args$last_value)
          )
   }, error = function(e) { # nolint
     err_msg <<- e$message

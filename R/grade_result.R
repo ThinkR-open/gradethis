@@ -14,12 +14,14 @@
 #'   (and `FALSE` otherwise).
 #' @param default_message In the event that no [condition()]s are met, what message should be
 #'   included with the returned [graded()] object?
+#' @param setup R code that will be run that will be run in the same environment as the fail_if()/pass_if()... will be   
 #'   
 #' @return a [graded()] object from either [pass_if()] or [fail_if()] containing
 #'   a formatted `correct` or `incorrect` message.
 #'
 #' @seealso [grade_code()]
 #' @export
+#' @importFrom rlang as_data_mask
 #' @examples
 #' 
 #' grade_result(
@@ -52,9 +54,9 @@ grade_result <- function(
   glue_correct = getOption("gradethis_glue_correct"),
   glue_incorrect = getOption("gradethis_glue_incorrect"),
   default_correct = "auto",
-  default_message = NULL
+  default_message = NULL,
+  setup = NULL
 ) {
-
   conditions <- list(...)
   if (!length(conditions)) {
     stop("At least one condition object (e.g., `pass_if()`, `fail_if()`, `condition()`) must be provided to `grade_result()`", call. = FALSE)
@@ -70,8 +72,19 @@ grade_result <- function(
   
   final_grade <- graded(correct = default_correct, message = default_message)
   found_grade <- FALSE
+  
+  
+  internal_setup_mask <- as_data_mask(data = list())
+  try(
+  catch_setup<-rlang::eval_tidy(substitute(setup),data = internal_setup_mask)
+  )
+  # now internal_setup_mask contain all objects from setup
+  # see ls(envir = internal_setup_mask,all.names = TRUE)
+  eval_env <- merge_environments(learnr_args,internal_setup_mask)
+
+
   for (cond in conditions) {
-    grade <- evaluate_condition(cond, grader_args, learnr_args)
+    grade <- evaluate_condition(condition = cond,grader_args =  grader_args,learnr_args =  eval_env)
     if (length(grade)) {
       final_grade <- grade
       found_grade <- TRUE
