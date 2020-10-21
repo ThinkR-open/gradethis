@@ -217,7 +217,6 @@ pmatches_argument_name <- function(this_call,
   if (!is.null(this_name) && this_name != "")
     correct_name <- paste(correct_name, "=", this)
   
-  
   intro  <- "This code seems correct, but please write with full parameter(s) names.\n"
   msg <- glue::glue_data(
     list(
@@ -225,10 +224,10 @@ pmatches_argument_name <- function(this_call,
       correct_name = correct_name,
       this_call = this_call
     ),
-    "You wrote {this} please rewrite with {correct_name} ."
+    "You wrote `{this}` please rewrite with `{correct_name}` ."
   )
   
-glue::glue("{paste(intro,paste(msg,collapse = '\n'))  }")
+glue::glue("{paste0(intro,paste(msg,collapse = '\n'))  }")
 }
 
 # too_many_matches
